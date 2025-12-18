@@ -15,7 +15,7 @@ const __dirname = dirname(__filename);
 
 async function main() {
   const rpcUrl = process.env.BASE_RPC_URL || "https://sepolia.base.org";
-  const signalsFilePath = join(__dirname, "../signals/definitions.yaml");
+  const signalsFilePath = join(__dirname, "../../signals/definitions.yaml");
 
   console.log("🚀 Starting BaseSignals Indexer");
   console.log(`RPC URL: ${rpcUrl}`);
