@@ -1,0 +1,33 @@
+{
+  "name": "basesignals",
+  "version": "0.1.0",
+  "description": "On-chain behavioral signals & intent graph for Base users",
+  "private": true,
+  "workspaces": [
+    "contracts",
+    "indexer",
+    "backend",
+    "frontend",
+    "sdk/js"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm install --workspaces",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces"
+  },
+  "keywords": [
+    "base",
+    "signals",
+    "on-chain",
+    "behavior",
+    "intent"
+  ],
+  "author": "fikritechno",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fikritechno/basesignals.git"
+  }
+}
+

@@ -1,0 +1,97 @@
+# BaseSignals Signal Definitions
+# Transparent, auditable signal generation rules
+
+signals:
+  BUILDER_SIGNAL:
+    description: "Detects users who deploy and interact with smart contracts"
+    conditions:
+      - contract_deployments >= 3
+      - active_days >= 14
+    score:
+      base: 50
+      multiplier: contract_count
+      max: 100
+    time_decay:
+      enabled: true
+      half_life_days: 90
+
+  FARMER_SIGNAL:
+    description: "Identifies airdrop farming behavior (frequent small swaps, bridges)"
+    conditions:
+      - small_swaps_count >= 10
+      - bridge_count >= 5
+      - avg_tx_value < 0.01
+    score:
+      base: 30
+      multiplier: activity_count
+      max: 80
+    time_decay:
+      enabled: true
+      half_life_days: 30
+
+  LONG_TERM_SIGNAL:
+    description: "Recognizes long-term participants in Base ecosystem"
+    conditions:
+      - holding_period_days >= 60
+      - tx_count >= 10
+      - first_tx_days_ago >= 60
+    score:
+      base: 30
+      multiplier: holding_period_days / 60
+      max: 100
+    time_decay:
+      enabled: false
+
+  ACTIVE_USER_SIGNAL:
+    description: "Active engagement on Base (regular transactions)"
+    conditions:
+      - tx_count_last_30_days >= 5
+      - unique_protocols >= 2
+    score:
+      base: 20
+      multiplier: tx_count_last_30_days / 5
+      max: 70
+    time_decay:
+      enabled: true
+      half_life_days: 30
+
+  NEWCOMER_SIGNAL:
+    description: "New users to the Base ecosystem"
+    conditions:
+      - first_tx_days_ago <= 7
+      - tx_count >= 1
+    score:
+      base: 10
+      multiplier: tx_count
+      max: 30
+    time_decay:
+      enabled: true
+      half_life_days: 7
+
+# Event types to track
+events:
+  - contract_deployment
+  - swap
+  - bridge
+  - nft_mint
+  - nft_transfer
+  - governance_vote
+  - escrow_usage
+  - arbitration
+
+# Protocols to track (Base ecosystem)
+protocols:
+  dex:
+    - Uniswap
+    - Aerodrome
+    - BaseSwap
+  bridge:
+    - Base Bridge
+    - Stargate
+  nft:
+    - Zora
+    - OpenSea
+  governance:
+    - Base DAO
+    - Optimism DAO
+

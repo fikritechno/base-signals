@@ -1,0 +1,22 @@
+{
+  "name": "@basesignals/contracts",
+  "version": "0.1.0",
+  "description": "BaseSignals smart contracts",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "test:coverage": "forge coverage",
+    "lint": "forge fmt --check",
+    "format": "forge fmt",
+    "deploy:sepolia": "forge script script/Deploy.s.sol:DeployScript --rpc-url $BASE_SEPOLIA_RPC --broadcast --verify",
+    "deploy:mainnet": "forge script script/Deploy.s.sol:DeployScript --rpc-url $BASE_MAINNET_RPC --broadcast --verify"
+  },
+  "keywords": [
+    "base",
+    "signals",
+    "on-chain",
+    "behavior"
+  ],
+  "license": "MIT"
+}
+

@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  contracts:
+    name: Test Contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Run tests
+        working-directory: ./contracts
+        run: forge test
+      - name: Check formatting
+        working-directory: ./contracts
+        run: forge fmt --check
+
+  indexer:
+    name: Test Indexer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        working-directory: ./indexer
+        run: npm ci
+      - name: Build
+        working-directory: ./indexer
+        run: npm run build
+      - name: Lint
+        working-directory: ./indexer
+        run: npm run lint || true
+
+  backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm ci
+      - name: Build
+        working-directory: ./backend
+        run: npm run build
+      - name: Lint
+        working-directory: ./backend
+        run: npm run lint || true
+
+  frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+      - name: Build
+        working-directory: ./frontend
+        run: npm run build
+      - name: Lint
+        working-directory: ./frontend
+        run: npm run lint || true
+
+  sdk:
+    name: Test SDK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        working-directory: ./sdk/js
+        run: npm ci
+      - name: Build
+        working-directory: ./sdk/js
+        run: npm run build
+
