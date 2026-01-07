@@ -3,9 +3,11 @@
  */
 
 import "dotenv/config";
+import axios from "axios";
 import { BaseListener } from "./base-listener.js";
 import { EventNormalizer } from "./event-normalizer.js";
 import { SignalEngine } from "./signal-engine.js";
+import { OnChainAttestor } from "./onchain-attestor.js";
 import { UserActivity } from "./types.js";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -15,15 +17,33 @@ const __dirname = dirname(__filename);
 
 async function main() {
   const rpcUrl = process.env.BASE_RPC_URL || "https://sepolia.base.org";
+  const apiUrl = process.env.API_URL || "http://localhost:3001";
+  const privateKey = process.env.PRIVATE_KEY; // Optional: for on-chain attestations
   const signalsFilePath = join(__dirname, "../../signals/definitions.yaml");
 
   console.log("🚀 Starting BaseSignals Indexer");
-  console.log(`RPC URL: ${rpcUrl}`);
+  console.log(`RPC URL: ${rpcUrl.replace(/\/v2\/[^/]+/, '/v2/***')}`); // Hide API key in logs
+  console.log(`API URL: ${apiUrl}`);
   console.log(`Signals file: ${signalsFilePath}`);
+  console.log(`On-chain attestations: ${privateKey ? "Enabled" : "Disabled (no PRIVATE_KEY)"}`);
+  
+  // Test RPC connection
+  try {
+    const { ethers } = await import("ethers");
+    const testProvider = new ethers.JsonRpcProvider(rpcUrl);
+    const blockNumber = await testProvider.getBlockNumber();
+    console.log(`✅ RPC connection successful (current block: ${blockNumber})`);
+  } catch (error: any) {
+    console.error(`❌ RPC connection failed: ${error.message}`);
+    console.error(`   Please check your BASE_RPC_URL in .env file`);
+    console.error(`   Falling back to public RPC: https://sepolia.base.org`);
+    // Don't exit, just use fallback
+  }
 
   const listener = new BaseListener(rpcUrl);
   const normalizer = new EventNormalizer();
   const signalEngine = new SignalEngine(signalsFilePath);
+  const onChainAttestor = new OnChainAttestor(rpcUrl, privateKey);
 
   // Start listening
   await listener.start();
@@ -53,7 +73,23 @@ async function main() {
           if (signals.signals.length > 0) {
             console.log(`✅ Generated ${signals.signals.length} signals for ${address}`);
             console.log(`   Primary intent: ${signals.primaryIntent}`);
-            // TODO: Send to on-chain registry or API
+            
+            // Send to backend API
+            try {
+              await axios.post(`${apiUrl}/attest`, {
+                address,
+                signals: signals.signals,
+                intent: signals.primaryIntent,
+              });
+              console.log(`   📤 Sent signals to API for ${address}`);
+            } catch (error: any) {
+              console.error(`   ❌ Failed to send signals to API for ${address}:`, error.message);
+            }
+
+            // Attest on-chain (if private key is configured)
+            if (privateKey) {
+              await onChainAttestor.attestSignals(address, signals.signals);
+            }
           }
         }
       }

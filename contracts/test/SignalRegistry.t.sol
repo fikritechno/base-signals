@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {SignalAttestor} from "../src/SignalAttestor.sol";
 import {SignalRegistry} from "../src/SignalRegistry.sol";
+import {ISignalRegistry} from "../src/interfaces/ISignalRegistry.sol";
 
 contract SignalRegistryTest is Test {
     SignalAttestor public attestor;
@@ -27,7 +28,7 @@ contract SignalRegistryTest is Test {
     }
 
     function test_Deploy() public {
-        assertEq(address(registry.attestorManager()), address(attestor));
+        assertEq(address(registry.ATTESTOR_MANAGER()), address(attestor));
     }
 
     function test_AttestSignal() public {

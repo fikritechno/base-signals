@@ -10,7 +10,7 @@ import {ISignalAttestor} from "./interfaces/ISignalAttestor.sol";
  * @dev Only approved attestors can write signals
  */
 contract SignalRegistry is ISignalRegistry {
-    ISignalAttestor public immutable attestorManager;
+    ISignalAttestor public immutable ATTESTOR_MANAGER;
 
     // user => signalType => Signal
     mapping(address => mapping(bytes32 => Signal)) private _signals;
@@ -24,7 +24,7 @@ contract SignalRegistry is ISignalRegistry {
      */
     constructor(address _attestorManager) {
         require(_attestorManager != address(0), "SignalRegistry: zero address");
-        attestorManager = ISignalAttestor(_attestorManager);
+        ATTESTOR_MANAGER = ISignalAttestor(_attestorManager);
     }
 
     /**
@@ -41,7 +41,7 @@ contract SignalRegistry is ISignalRegistry {
         require(user != address(0), "SignalRegistry: zero address");
         require(score <= 100, "SignalRegistry: score exceeds 100");
         require(
-            attestorManager.isAttestor(msg.sender),
+            ATTESTOR_MANAGER.isAttestor(msg.sender),
             "SignalRegistry: not an attestor"
         );
 
@@ -67,7 +67,7 @@ contract SignalRegistry is ISignalRegistry {
      */
     function revokeSignal(address user, bytes32 signalType) external override {
         require(
-            attestorManager.isAttestor(msg.sender),
+            ATTESTOR_MANAGER.isAttestor(msg.sender),
             "SignalRegistry: not an attestor"
         );
         require(_signals[user][signalType].timestamp != 0, "SignalRegistry: signal not found");

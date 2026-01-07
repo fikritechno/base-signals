@@ -26,3 +26,13 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+/* Ensure input text is visible */
+input[type="text"] {
+  color: #000;
+  background-color: #fff;
+}
+
+input[type="text"]::placeholder {
+  color: #9ca3af;
+}
+

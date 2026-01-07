@@ -9,18 +9,34 @@ export default function Home() {
   const [address, setAddress] = useState("");
   const [signals, setSignals] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchSignals = async () => {
     if (!address) return;
     
     setLoading(true);
+    setError(null);
+    setSignals(null);
+    
     try {
       const response = await axios.get(`${API_URL}/address/${address}/signals`);
       setSignals(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching signals:", error);
+      setError(
+        error.response?.data?.error || 
+        error.message || 
+        "Failed to fetch signals. Make sure the backend API is running on port 3001."
+      );
+      setSignals(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && address && !loading) {
+      fetchSignals();
     }
   };
 
@@ -40,21 +56,29 @@ export default function Home() {
               placeholder="Enter Base address (0x...)"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="flex-1 px-4 py-2 border rounded-lg"
+              onKeyPress={handleKeyPress}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-base-blue focus:border-transparent text-gray-900"
             />
             <button
               onClick={fetchSignals}
               disabled={loading || !address}
-              className="px-6 py-2 bg-base-blue text-white rounded-lg disabled:opacity-50"
+              className="px-6 py-2 bg-base-blue text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
             >
               {loading ? "Loading..." : "Search"}
             </button>
           </div>
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
         </div>
 
         {signals && (
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold mb-4">Signals</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Signals for {address.slice(0, 6)}...{address.slice(-4)}
+            </h2>
             {signals.signals && signals.signals.length > 0 ? (
               <div className="space-y-4">
                 {signals.signals.map((signal: any, idx: number) => (
